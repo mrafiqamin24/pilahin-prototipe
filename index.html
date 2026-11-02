@@ -108,7 +108,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 .result{display:flex;gap:14px;align-items:center}
 .bin{width:64px;height:72px;border-radius:12px 12px 16px 16px;display:grid;place-items:center;flex:none;position:relative;color:#fff}
 .bin::before{content:"";position:absolute;top:-8px;left:-4px;right:-4px;height:12px;border-radius:6px;background:inherit;filter:brightness(.85)}
-.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-weight:800;font-size:calc(13px*var(--scale))}
+.pill{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-weight:800;font-size:calc(13px*var(--scale))}
 .check{display:flex;gap:14px;align-items:center;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);text-align:left;font-size:calc(16px*var(--scale));font-weight:600;width:100%}
 .check .bx{width:30px;height:30px;border-radius:9px;border:2.5px solid var(--fg-2);display:grid;place-items:center;flex:none}
 .check[aria-checked="true"]{border-color:var(--leaf);background:color-mix(in srgb,var(--leaf) 9%,var(--surface))}
