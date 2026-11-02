@@ -189,6 +189,17 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 .prize{display:flex;gap:12px;align-items:center;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
 .prize .r{margin-left:auto}
 .mobile-note{display:none}
+[hidden]{display:none!important}
+.scen-h{font-size:17px;font-weight:800;margin:0 0 10px;color:var(--fg)}
+.sheet-back{position:fixed;inset:0;z-index:50;background:rgba(13,58,63,.45);display:flex;align-items:flex-end}
+.sheet{width:100%;background:var(--surface);border-radius:26px 26px 0 0;padding:12px max(20px,env(safe-area-inset-left,0px)) max(22px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px;animation:up .35s cubic-bezier(.2,.9,.3,1)}
+@keyframes up{from{transform:translateY(100%)}}
+.grab{width:44px;height:5px;border-radius:3px;background:var(--line);align-self:center}
+.sheet h2{margin:4px 0 0;font-size:21px;font-weight:800;color:var(--ink)}
+.sheet p{margin:0;color:var(--fg-2)}
+.sheet ul{margin:0;padding-left:18px;color:var(--fg);display:grid;gap:4px}
+.sheet .ghost{width:100%;padding:14px;border-radius:16px;border:1.5px solid var(--line);font-weight:700}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;background:var(--ink);color:var(--on-ink);font-weight:800;font-size:14px;box-shadow:0 10px 24px -8px rgba(13,58,63,.6);white-space:nowrap}
 
 @media (max-width:900px){
   .wrap{grid-template-columns:1fr;gap:24px;justify-items:center;padding-block:16px}
@@ -210,15 +221,28 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-of
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-</head><body>
+</head><body style="margin:0">
 
 <div class="wrap">
   <section class="intro" aria-labelledby="ttl">
     <h1 id="ttl">PILAHIN</h1>
     <p>Prototipe tampilan aplikasi pilah sampah rumah tangga. Coba alurnya langsung di layar ponsel: pilah, serahkan, dicek petugas, lalu poin masuk. 1 poin bernilai Rp1.</p>
+    <h2 class="scen-h" id="scenh">Menu skenario</h2>
     <ul class="scen" id="scen"></ul>
     <p class="note">Ini gambaran rancangan aplikasi dengan data contoh, bukan tampilan aslinya. Jika lolos ke babak final, kami akan membawa aplikasi PILAHIN versi asli.</p>
   </section>
+  <div class="sheet-back" id="hint" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="hintT">
+      <span class="grab" aria-hidden="true"></span>
+      <h2 id="hintT">Selamat datang di prototipe PILAHIN</h2>
+      <p>Gulir ke bawah aplikasi untuk membuka <b>menu skenario</b>. Dari sana kamu bisa mencoba:</p>
+      <ul><li>Pilah sampah sebagai warga</li><li>Catat setoran warga tanpa HP</li><li>Kartu PILAHIN dan peringkat berpodium</li><li>Pesan bahan sebagai mitra</li></ul>
+      <p style="font-size:13px">Ini gambaran rancangan dengan data contoh, bukan tampilan asli aplikasi.</p>
+      <button class="cta ink" id="hintMenu">Lihat menu skenario</button>
+      <button class="ghost" id="hintApp">Coba aplikasinya dulu</button>
+    </div>
+  </div>
+  <button class="fab" id="fab" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Menu skenario</button>
   <div class="phone" aria-label="Layar aplikasi PILAHIN">
     <div class="screen" id="screen">
       <div class="notch" aria-hidden="true"></div>
@@ -484,6 +508,22 @@ function active(i){const [, , ,]=SC[i];
 function scen(){document.getElementById('scen').innerHTML=SC.map(([t,s,i],k)=>`<li><button data-sc="${k}" aria-pressed="${active(k)}"><span class="ic">${I[i]}</span><span><b>${t}</b><small>${s}</small></span></button></li>`).join('')}
 document.getElementById('scen').addEventListener('click',e=>{const b=e.target.closest('[data-sc]');if(b){SC[+b.dataset.sc][3]();if(window.innerWidth<=900)document.querySelector('.phone').scrollIntoView({behavior:'smooth'})}});
 render();
+/* petunjuk untuk pengunjung di HP: menu skenario ada di bawah aplikasi */
+const mq=window.matchMedia('(max-width:520px)');
+const hint=document.getElementById('hint'),fab=document.getElementById('fab'),scenH=document.getElementById('scenh');
+const toMenu=()=>{hint.hidden=true;scenH.scrollIntoView({behavior:'smooth',block:'start'})};
+let menuVisible=false;
+if('IntersectionObserver' in window){new IntersectionObserver(es=>{menuVisible=es[0].isIntersecting;syncFab()},{threshold:0}).observe(document.getElementById('scen'))}
+function syncFab(){fab.hidden=!mq.matches||menuVisible||!hint.hidden}
+let seen=false;try{seen=sessionStorage.getItem('pilahin-hint')==='1'}catch(e){}
+if(mq.matches&&!seen){hint.hidden=false}
+const closeHint=()=>{hint.hidden=true;try{sessionStorage.setItem('pilahin-hint','1')}catch(e){}syncFab()};
+document.getElementById('hintMenu').addEventListener('click',()=>{closeHint();toMenu()});
+document.getElementById('hintApp').addEventListener('click',closeHint);
+hint.addEventListener('click',e=>{if(e.target===hint)closeHint()});
+fab.addEventListener('click',toMenu);
+(mq.addEventListener?mq.addEventListener('change',syncFab):mq.addListener(syncFab));
+syncFab();
 })();
 </script>
 </body></html>
