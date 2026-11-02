@@ -1,0 +1,489 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="light"><meta name="description" content="Prototipe tampilan aplikasi PILAHIN dengan data contoh untuk NEC 6.">
+<title>Prototipe PILAHIN</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: desktop = penjelasan + daftar skenario di kiri, ponsel di kanan; ponsel = aplikasi penuh, skenario di bawah.
+   Warna jenis sampah mengikuti warna tempat sampah terpilah: hijau organik, kuning anorganik, biru kertas. */
+:root{
+  --ink:#0d3a3f;         /* biru-hijau sungai, warna utama */
+  --ink-2:#165c62;
+  --leaf:#2f8f4e;        /* organik */
+  --sun:#f2b705;         /* anorganik, poin */
+  --sky:#2f6fb3;         /* kertas */
+  --clay:#c2552d;        /* peringatan */
+  --bg:#eef3f1;
+  --surface:#ffffff;
+  --surface-2:#f5f8f6;
+  --line:#d6e0dc;
+  --fg:#11292b;
+  --fg-2:#4d6466;
+  --on-ink:#f4fbf8;
+  --gold:#e0a400;--silver:#9aa7ac;--bronze:#b8723f;
+  --shadow:0 18px 50px -24px rgba(13,58,63,.45);
+  --font:"Plus Jakarta Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --scale:1;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:10px}
+.wrap{min-height:100%;display:grid;grid-template-columns:minmax(0,420px) auto;gap:56px;justify-content:center;align-items:center;
+  padding-block:32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.intro h1{font-size:44px;line-height:1.05;letter-spacing:-.02em;margin:0 0 12px;font-weight:800;color:var(--ink);text-wrap:balance}
+.intro p{color:var(--fg-2);margin:0 0 20px;max-width:46ch}
+.scen{display:grid;gap:8px;margin:0 0 20px;padding:0;list-style:none}
+.scen button{width:100%;text-align:left;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line);transition:border-color .15s,transform .15s}
+.scen button:hover{border-color:var(--ink-2)}
+.scen button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.scen b{display:block;font-size:15px}
+.scen small{color:var(--fg-2);font-size:13px}
+.scen .ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex:none;background:var(--surface-2);color:var(--ink)}
+.note{font-size:13px;color:var(--fg-2);border-left:3px solid var(--sun);padding:6px 0 6px 12px;max-width:46ch}
+
+/* ponsel */
+.phone{width:390px;height:800px;border-radius:52px;padding:12px;background:#0f1516;box-shadow:var(--shadow),inset 0 0 0 2px #2a3436;position:relative}
+.screen{width:100%;height:100%;border-radius:41px;overflow:hidden;background:var(--bg);position:relative;display:flex;flex-direction:column;font-size:calc(15px*var(--scale))}
+.notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:110px;height:30px;border-radius:20px;background:#0f1516;z-index:5}
+.status{height:46px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 28px 6px;font-size:13px;font-weight:700}
+.view{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 18px 22px;display:flex;flex-direction:column;gap:14px;scrollbar-width:none}
+.view::-webkit-scrollbar{display:none}
+.view>*{flex-shrink:0}
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding:8px 6px 22px}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:calc(11.5px*var(--scale));font-weight:600;color:var(--fg-2);padding:6px 0;border-radius:12px}
+.tabbar button[aria-current="page"]{color:var(--ink)}
+.tabbar button[aria-current="page"] svg{background:color-mix(in srgb,var(--ink) 14%,transparent);border-radius:999px;padding:3px 14px;box-sizing:content-box}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.top h2{font-size:calc(22px*var(--scale));margin:0;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.top p{margin:0;color:var(--fg-2);font-size:calc(13px*var(--scale))}
+.iconbtn{width:42px;height:42px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;flex:none;font-weight:800}
+.iconbtn[aria-pressed="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.back{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--ink);padding:6px 0}
+
+/* kartu saldo: elemen paling menonjol di beranda */
+.wallet{border-radius:26px;padding:20px;background:var(--ink);color:var(--on-ink);position:relative;overflow:hidden}
+.wallet::after{content:"";position:absolute;inset:auto -40px -60px auto;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--sun) 55%,transparent),transparent 70%);opacity:.55}
+.wallet .lbl{font-size:13px;opacity:.85}
+.wallet .num{font-size:calc(38px*var(--scale));font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.wallet .rp{font-size:14px;opacity:.9}
+.wallet .row{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1;gap:10px}
+.streak{display:flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--on-ink) 14%,transparent);border-radius:14px;padding:8px 12px;font-weight:700;font-size:14px;white-space:nowrap}
+.cta{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:18px;border-radius:20px;background:var(--sun);color:#2a2100;font-weight:800;font-size:calc(19px*var(--scale));box-shadow:0 4px 0 color-mix(in srgb,var(--sun) 60%,#000)}
+.cta:active{transform:translateY(2px);box-shadow:0 2px 0 color-mix(in srgb,var(--sun) 60%,#000)}
+.cta.ink{background:var(--ink);color:var(--on-ink);box-shadow:0 4px 0 color-mix(in srgb,var(--ink) 60%,#000)}
+.cta[disabled]{opacity:.45;cursor:not-allowed}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.quick button{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:calc(12.5px*var(--scale));font-weight:600;padding:10px 2px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.quick .q{width:40px;height:40px;border-radius:13px;display:grid;place-items:center}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px}
+.panel h3{margin:0 0 10px;font-size:calc(15px*var(--scale));font-weight:800}
+.bar{height:10px;border-radius:6px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--leaf);border-radius:6px}
+.muted{color:var(--fg-2);font-size:calc(13px*var(--scale))}
+.hist{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.hist:first-of-type{border-top:0}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.hist .amt{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* langkah */
+.steps{display:flex;gap:6px}
+.steps i{flex:1;height:6px;border-radius:4px;background:var(--line)}
+.steps i.on{background:var(--ink)}
+.viewfinder{aspect-ratio:1/1;max-width:100%;border-radius:26px;background:linear-gradient(160deg,#1d3d40,#0b2224);position:relative;display:grid;place-items:center;color:#cfe6e2;overflow:hidden}
+.viewfinder .corner{position:absolute;width:44px;height:44px;border:4px solid #fff;opacity:.85}
+.c1{top:22px;left:22px;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.c2{top:22px;right:22px;border-left:0;border-bottom:0;border-radius:0 14px 0 0}
+.c3{bottom:22px;left:22px;border-right:0;border-top:0;border-radius:0 0 0 14px}
+.c4{bottom:22px;right:22px;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.scanline{position:absolute;left:12%;right:12%;height:3px;background:var(--sun);box-shadow:0 0 18px var(--sun);top:20%;animation:scan 1.1s ease-in-out infinite alternate}
+@keyframes scan{to{top:78%}}
+.samples{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.samples button{display:flex;gap:10px;align-items:center;padding:12px;border-radius:16px;background:var(--surface);border:1px solid var(--line);text-align:left;font-weight:700;font-size:calc(14px*var(--scale))}
+.result{display:flex;gap:14px;align-items:center}
+.bin{width:64px;height:72px;border-radius:12px 12px 16px 16px;display:grid;place-items:center;flex:none;position:relative;color:#fff}
+.bin::before{content:"";position:absolute;top:-8px;left:-4px;right:-4px;height:12px;border-radius:6px;background:inherit;filter:brightness(.85)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 12px;font-weight:800;font-size:calc(13px*var(--scale))}
+.check{display:flex;gap:14px;align-items:center;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);text-align:left;font-size:calc(16px*var(--scale));font-weight:600;width:100%}
+.check .bx{width:30px;height:30px;border-radius:9px;border:2.5px solid var(--fg-2);display:grid;place-items:center;flex:none}
+.check[aria-checked="true"]{border-color:var(--leaf);background:color-mix(in srgb,var(--leaf) 9%,var(--surface))}
+.check[aria-checked="true"] .bx{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.opt{display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:18px;background:var(--surface);border:2px solid var(--line);text-align:left;width:100%}
+.opt[aria-checked="true"]{border-color:var(--ink);background:color-mix(in srgb,var(--ink) 7%,var(--surface))}
+.opt b{display:block;font-size:calc(16px*var(--scale))}
+.radio{width:24px;height:24px;border-radius:50%;border:2.5px solid var(--fg-2);flex:none;margin-top:2px}
+.opt[aria-checked="true"] .radio{border:7px solid var(--ink)}
+.qrbox{display:flex;gap:16px;align-items:center}
+.qr{width:118px;height:118px;flex:none;background:#fff;border-radius:14px;padding:8px}
+.tl{display:grid;gap:12px}
+.tl div{display:flex;gap:12px;align-items:center;font-size:calc(14.5px*var(--scale))}
+.tl .d{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--line);color:var(--fg-2)}
+.tl .ok .d{background:var(--leaf);color:#fff}
+.tl .wait .d{background:var(--sun);color:#2a2100}
+/* struk timbangan */
+.receipt{background:var(--surface);border-radius:18px 18px 4px 4px;padding:18px 18px 22px;position:relative;font-variant-numeric:tabular-nums;border:1px solid var(--line);border-bottom:0}
+.receipt::after{content:"";position:absolute;left:0;right:0;bottom:-10px;height:12px;background:radial-gradient(circle at 8px 0,transparent 7px,var(--surface) 7.5px) 0 0/16px 12px repeat-x}
+.receipt .ln{display:flex;justify-content:space-between;padding:5px 0;font-size:calc(14px*var(--scale))}
+.receipt .tot{border-top:2px dashed var(--line);margin-top:8px;padding-top:10px;font-weight:800;font-size:calc(17px*var(--scale))}
+.pop{animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+
+/* peringkat */
+.seg{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:none;padding:8px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:calc(13.5px*var(--scale))}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.podium{display:grid;grid-template-columns:1fr 1.1fr 1fr;align-items:end;gap:8px;padding-top:6px}
+.pod{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-width:0}
+.pod .who{font-weight:800;font-size:calc(13px*var(--scale));line-height:1.25;overflow-wrap:anywhere}
+.pod .val{font-size:calc(12px*var(--scale));color:var(--fg-2);font-variant-numeric:tabular-nums}
+.av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;font-size:17px;border:3px solid var(--surface);box-shadow:0 0 0 3px var(--c)}
+.pod.first .av{width:64px;height:64px;font-size:20px}
+.block{width:100%;border-radius:14px 14px 4px 4px;display:flex;justify-content:center;padding-top:10px;font-size:26px;font-weight:800;color:#fff;background:var(--c)}
+.crown{color:var(--gold);margin-bottom:-4px}
+.rk{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:calc(14.5px*var(--scale))}
+.rk:first-child{border-top:0}
+.rk .n{width:26px;color:var(--fg-2);font-weight:800;font-variant-numeric:tabular-nums}
+.rk .v{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rk.me{background:color-mix(in srgb,var(--sun) 16%,transparent);border-radius:12px;padding-inline:10px;margin-inline:-10px;border-top-color:transparent}
+
+/* kartu PILAHIN: motif anyaman rotan */
+.cardwrap{perspective:1200px}
+.pcard{aspect-ratio:1.586/1;max-width:100%;width:100%;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.3,.7,.2,1);cursor:pointer}
+.pcard.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;overflow:hidden;color:#fff;padding:18px;display:flex;flex-direction:column;justify-content:space-between;
+  background:
+   repeating-linear-gradient(45deg,rgba(255,255,255,.07) 0 10px,transparent 10px 20px),
+   repeating-linear-gradient(-45deg,rgba(0,0,0,.10) 0 10px,transparent 10px 20px),
+   linear-gradient(135deg,#0d3a3f 0%,#14585c 55%,#1f6d55 100%);box-shadow:0 20px 40px -18px rgba(13,58,63,.7)}
+.face.back{transform:rotateY(180deg);background:linear-gradient(135deg,#123e42,#0b2a2d)}
+.face .brand{font-weight:800;font-size:20px;letter-spacing:.06em}
+.face .chip{width:40px;height:30px;border-radius:7px;background:linear-gradient(135deg,#f6d36b,#c9961d);position:relative}
+.face .chip::after{content:"";position:absolute;inset:6px 8px;border:1.5px solid rgba(90,60,0,.5);border-radius:3px}
+.face .stripe{position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(90deg,var(--leaf) 0 33%,var(--sun) 33% 66%,var(--sky) 66%)}
+.face .nm{font-size:20px;font-weight:800;line-height:1.15}
+.face .meta{font-size:12px;opacity:.85}
+.face .qrs{background:#fff;border-radius:10px;padding:5px;width:84px;height:84px}
+
+/* toast */
+.toast{position:absolute;left:16px;right:16px;bottom:96px;background:var(--fg);color:var(--bg);border-radius:16px;padding:12px 14px;font-weight:700;font-size:14px;z-index:20;animation:pop .35s ease-out}
+.petugas .tabbar button[aria-current="page"],.petugas .back{color:var(--sky)}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:40px;height:40px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);font-size:20px;font-weight:800}
+.stepper output{min-width:62px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;font-size:calc(17px*var(--scale))}
+.krow{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.krow:first-of-type{border-top:0}
+.search{display:flex;gap:10px;align-items:center;padding:12px 14px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.search input{border:0;background:none;font:inherit;color:inherit;flex:1;min-width:0;outline:none}
+.person{display:flex;gap:12px;align-items:center;padding:12px;border-radius:16px;background:var(--surface);border:1px solid var(--line);width:100%;text-align:left}
+.tag{white-space:nowrap;font-size:11.5px;font-weight:700;border-radius:8px;padding:2px 8px;background:var(--surface-2);color:var(--fg-2);border:1px solid var(--line)}
+.mat{display:flex;gap:12px;align-items:center;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.mat .sw{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;color:#fff;flex:none}
+.mat .r{margin-left:auto;text-align:right}
+.smallbtn{padding:9px 14px;border-radius:12px;background:var(--ink);color:var(--on-ink);font-weight:800;font-size:13.5px}
+.prize{display:flex;gap:12px;align-items:center;padding:14px;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.prize .r{margin-left:auto}
+.mobile-note{display:none}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:24px;justify-items:center;padding-block:16px}
+  .intro{order:2;max-width:420px}
+  .intro h1{font-size:34px}
+  .phone{order:1}
+}
+@media (max-width:520px){
+  .wrap{display:flex;flex-direction:column;padding:0;gap:0}
+  .intro{order:2}.phone{order:1}
+  .phone{width:100%;height:auto;border-radius:0;padding:0;box-shadow:none;background:transparent}
+  .screen{border-radius:0;height:100vh;height:100dvh}
+  .notch,.status{display:none}
+  .view{padding:16px max(16px,env(safe-area-inset-left,0px)) 22px max(16px,env(safe-area-inset-right,0px))}
+  .tabbar{padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+  .intro{padding:28px max(16px,env(safe-area-inset-left,0px)) 40px max(16px,env(safe-area-inset-right,0px))}
+  .intro h1{font-size:30px}
+  .toast{bottom:84px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head><body>
+
+<div class="wrap">
+  <section class="intro" aria-labelledby="ttl">
+    <h1 id="ttl">PILAHIN</h1>
+    <p>Prototipe tampilan aplikasi pilah sampah rumah tangga. Coba alurnya langsung di layar ponsel: pilah, serahkan, dicek petugas, lalu poin masuk. 1 poin bernilai Rp1.</p>
+    <ul class="scen" id="scen"></ul>
+    <p class="note">Ini gambaran rancangan aplikasi dengan data contoh, bukan tampilan aslinya. Jika lolos ke babak final, kami akan membawa aplikasi PILAHIN versi asli.</p>
+  </section>
+  <div class="phone" aria-label="Layar aplikasi PILAHIN">
+    <div class="screen" id="screen">
+      <div class="notch" aria-hidden="true"></div>
+      <div class="status" aria-hidden="true"><span>09.41</span><span>4G ▮▮▮</span></div>
+      <main class="view" id="view" tabindex="-1"></main>
+      <nav class="tabbar" id="tabbar" aria-label="Menu utama"></nav>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const fmt=n=>Math.round(n).toLocaleString('id-ID');
+const kg=n=>n.toLocaleString('id-ID',{maximumFractionDigits:1})+' kg';
+const I={
+ home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+ list:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>',
+ trophy:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0zM12 14v4M8 21h8M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>',
+ gift:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 9h18v4H3zM5 13h14v8H5zM12 9v12"/><path d="M12 9c-2-4-6-4-6-1s6 1 6 1zm0 0c2-4 6-4 6-1s-6 1-6 1z"/></svg>',
+ cam:'<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+ truck:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7z"/><circle cx="6" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>',
+ card:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18"/></svg>',
+ hand:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 14h4l4 3h5a2 2 0 0 0 0-4h-4M7 14V9l5-4 5 4v4"/></svg>',
+ flame:'<svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-6 0 2 1 3 2 3 0-4-1-6 1-9z" fill="#f97316"/><path d="M12 12c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1-3 1 1 2 0 2-2z" fill="#fde047"/></svg>',
+ check:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+ back:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+ scan:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M4 12h16"/></svg>',
+ search:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+ crown:'<svg width="26" height="20" viewBox="0 0 26 20"><path d="M2 18L4 5l6 6 3-9 3 9 6-6 2 13z" fill="currentColor"/></svg>',
+ bottle:'<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2h4v3l2 3v13a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V8l2-3z"/></svg>',
+ sachet:'<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12l-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1 2-1 2H6l1-2-1-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2z"/></svg>',
+ leaf:'<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4C9 4 4 9 4 16c0 1 0 2 .5 3C6 12 11 9 15 8c-4 2-8 6-9 12 1 .5 2 .5 3 .5 7 0 11-6 11-16.5z"/></svg>',
+ tire:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>',
+ paper:'<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/></svg>',
+ text:'<span style="font-size:15px">Aa</span>'
+};
+const ITEMS={
+ botol:{nm:'Botol plastik',sub:'PET bening',jenis:'Anorganik',col:'var(--sun)',txt:'#2a2100',ic:'bottle',harga:2000,berat:1.2,
+   steps:['Kosongkan dan bilas','Lepas tutup dan labelnya','Pipihkan botol']},
+ saset:{nm:'Kemasan saset',sub:'Kopi, sampo, deterjen',jenis:'Anorganik',col:'var(--sun)',txt:'#2a2100',ic:'sachet',harga:600,berat:0.8,
+   steps:['Gunting bagian atasnya','Bilas sisa isinya','Keringkan lalu kumpulkan']},
+ sayur:{nm:'Sisa sayur dan buah',sub:'Kulit, batang, daun',jenis:'Organik',col:'var(--leaf)',txt:'#fff',ic:'leaf',harga:300,berat:2.5,
+   steps:['Pisahkan dari plastik','Tiriskan airnya','Simpan di wadah tertutup']},
+ ban:{nm:'Ban bekas',sub:'Ban motor atau sepeda',jenis:'Anorganik',col:'var(--sun)',txt:'#2a2100',ic:'tire',harga:400,berat:6,
+   steps:['Bersihkan dari tanah','Keluarkan air dari dalam ban','Ikat jika lebih dari satu']},
+ kardus:{nm:'Kardus dan kertas',sub:'Kotak, koran bekas',jenis:'Kertas',col:'var(--sky)',txt:'#fff',ic:'paper',harga:1500,berat:3,
+   steps:['Lipat hingga pipih','Pastikan kering','Ikat dengan tali']}
+};
+const S={role:'warga',tab:'home',poin:12400,streak:12,scale:1,
+ flow:null,lvl:'rt',flip:false,
+ hist:[{t:'Kemasan saset',w:0.6,p:360,d:'Kemarin',c:'var(--sun)'},{t:'Sisa sayur dan buah',w:3.1,p:930,d:'Senin',c:'var(--leaf)'},{t:'Kardus dan kertas',w:2,p:3000,d:'Sabtu',c:'var(--sky)'}],
+ pt:{who:null,q:{an:1.5,kr:0,or:2},saved:null,query:''},
+ mitra:{tipe:'Pengrajin',order:null}
+};
+const RANK={
+ warga:{ttl:'Warga teraktif di RT 03/RW 02',unit:'kg',rows:[['Siti Aminah',48.2,'SA'],['Dimas Pratama',41.5,'DP'],['Hendra Saputra',37.0,'HS'],['Rina Lestari',30.4,'RL'],['Yusuf Maulana',26.1,'YM'],['Agus Salim',22.8,'AS']],me:1},
+ rt:{ttl:'RT/RW terbersih se-Kecamatan Delta Pawan',unit:'kg',rows:[['RT 03/RW 02',412,'03'],['RT 07/RW 04',350,'07'],['RT 01/RW 01',288,'01'],['RT 05/RW 02',231,'05'],['RT 02/RW 03',198,'02'],['RT 04/RW 01',176,'04']],me:0},
+ kec:{ttl:'Kecamatan terbaik se-Kabupaten Ketapang',unit:'ton',rows:[['Delta Pawan',8.4,'DP'],['Benua Kayong',6.9,'BK'],['Muara Pawan',5.2,'MP'],['Tumbang Titi',4.6,'TT'],['Matan Hilir Utara',3.9,'MH']],me:0},
+ kab:{ttl:'Kabupaten/kota terbaik se-Kalimantan Barat',unit:'ton',rows:[['Kab. Ketapang',41.2,'KT'],['Kota Pontianak',38.7,'PT'],['Kab. Sanggau',29.5,'SG'],['Kab. Kubu Raya',27.1,'KR'],['Kab. Kayong Utara',15.8,'KU']],me:0},
+ prov:{ttl:'Peringkat antarprovinsi (tahap lanjut)',unit:'ton',rows:[['Kalimantan Barat',182,'KB'],['Kalimantan Tengah',151,'KT'],['Kalimantan Selatan',139,'KS'],['Kalimantan Timur',120,'KI']],me:0}
+};
+const view=document.getElementById('view'),tabbar=document.getElementById('tabbar'),screen=document.getElementById('screen');
+
+function qr(seed,size){let s=seed,out='';const r=()=>{s=(s*9301+49297)%233280;return s/233280};const n=21,c=size/n;
+ const fin=(x,y)=>{const f=[[0,0],[14,0],[0,14]].find(([a,b])=>x>=a&&x<a+7&&y>=b&&y<b+7);if(!f)return null;const dx=x-f[0],dy=y-f[1];return dx==0||dx==6||dy==0||dy==6||(dx>=2&&dx<=4&&dy>=2&&dy<=4)};
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){const f=fin(x,y);const on=f===null?r()>.52:f;if(on)out+=`<rect x="${x*c}" y="${y*c}" width="${c+.3}" height="${c+.3}"/>`}
+ return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="100%" fill="#0d1f20" aria-label="Kode QR contoh">${out}</svg>`}
+
+function toast(msg){const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;screen.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+const TABS={warga:[['home','Beranda','home'],['riwayat','Riwayat','list'],['peringkat','Peringkat','trophy'],['tukar','Tukar','gift']],
+ petugas:[['catat','Catat','scan'],['jemput','Jemput','truck'],['kartu','Kartu','card'],['peringkat','Peringkat','trophy']],
+ mitra:[['bahan','Bahan','hand'],['pesanan','Pesanan','list'],['peringkat','Peringkat','trophy'],['akun','Akun','card']]};
+
+function nav(){tabbar.innerHTML=TABS[S.role].map(([k,l,i])=>`<button data-tab="${k}" ${S.tab===k?'aria-current="page"':''}>${I[i]}${l}</button>`).join('');
+ screen.classList.toggle('petugas',S.role==='petugas')}
+
+function header(title,sub,extra=''){return `<div class="top"><div><h2>${title}</h2>${sub?`<p>${sub}</p>`:''}</div>${extra}</div>`}
+const textBtn=()=>`<button class="iconbtn" data-act="scale" aria-pressed="${S.scale>1}" aria-label="Huruf besar">${I.text}</button>`;
+
+/* ---------- WARGA ---------- */
+function home(){
+ return `${header('Halo, Dimas','RT 03/RW 02 · Delta Pawan',textBtn())}
+ <section class="wallet"><div class="row"><div><div class="lbl">Saldo poin</div><div class="num">${fmt(S.poin)}</div><div class="rp">setara Rp${fmt(S.poin)}</div></div>
+ <div class="streak">${I.flame}${S.streak} hari rutin</div></div></section>
+ <button class="cta" data-act="start">${I.cam}Pilah Sampah</button>
+ <div class="quick">
+  <button data-tab="tukar"><span class="q" style="background:color-mix(in srgb,var(--sun) 22%,transparent);color:#8a6400">${I.gift}</span>Tukar poin</button>
+  <button data-act="jadwal"><span class="q" style="background:color-mix(in srgb,var(--leaf) 18%,transparent);color:var(--leaf)">${I.truck}</span>Jadwal jemput</button>
+  <button data-tab="peringkat"><span class="q" style="background:color-mix(in srgb,var(--sky) 18%,transparent);color:var(--sky)">${I.trophy}</span>Peringkat</button>
+  <button data-tab="riwayat"><span class="q" style="background:var(--surface-2);color:var(--ink)">${I.list}</span>Riwayat</button>
+ </div>
+ <section class="panel"><h3>Target RT 03 minggu ini</h3><div class="bar"><i style="width:68%"></i></div>
+  <p class="muted" style="margin:8px 0 0">34 dari 50 rumah sudah setor. Ayo jaga posisi pertama se-kecamatan.</p></section>
+ <section class="panel"><h3>Setoran terakhir</h3>${S.hist.slice(0,3).map(h=>`<div class="hist"><span class="dot" style="background:${h.c}"></span><div><b>${h.t}</b><div class="muted">${h.d} · ${kg(h.w)}</div></div><span class="amt">+${fmt(h.p)}</span></div>`).join('')}</section>`}
+
+function riwayat(){const tot=S.hist.reduce((a,h)=>a+h.p,0),w=S.hist.reduce((a,h)=>a+h.w,0);
+ return `${header('Riwayat setoran','Hanya setoran yang sudah dicek petugas')}
+ <section class="panel" style="display:flex;justify-content:space-between;gap:10px"><div><div class="muted">Total terpilah</div><b style="font-size:22px">${kg(w)}</b></div><div style="text-align:right"><div class="muted">Poin dari setoran</div><b style="font-size:22px">${fmt(tot)}</b></div></section>
+ <section class="panel">${S.hist.map(h=>`<div class="hist"><span class="dot" style="background:${h.c}"></span><div><b>${h.t}</b><div class="muted">${h.d} · ${kg(h.w)}</div></div><span class="amt">+${fmt(h.p)}</span></div>`).join('')}</section>`}
+
+function tukar(){const P=[['Pulsa Rp10.000',10000,'var(--sky)'],['Token listrik Rp20.000',20000,'var(--sun)'],['Beras 1 kg (warung mitra)',14000,'var(--leaf)'],['Sumbang ke kas RT 03',5000,'var(--ink)']];
+ return `${header('Tukar poin','1 poin = Rp1')}
+ <section class="wallet" style="padding:16px 20px"><div class="lbl">Saldo kamu</div><div class="num" style="font-size:30px">${fmt(S.poin)} poin</div></section>
+ ${P.map(([n,c,col],i)=>`<div class="prize"><span class="dot" style="background:${col};width:14px;height:14px"></span><div><b>${n}</b><div class="muted">${fmt(c)} poin</div></div><div class="r"><button class="smallbtn" data-act="redeem" data-i="${i}" ${S.poin<c?'disabled style="opacity:.4"':''}>Tukar</button></div></div>`).join('')}
+ <p class="muted">Penukaran diambil di balai desa atau langsung masuk ke nomor HP. Daftar hadiah adalah contoh.</p>`}
+
+/* alur pilah */
+function flow(){const f=S.flow;const st=`<div class="steps" aria-label="Langkah ${f.step} dari 4">${[1,2,3,4].map(n=>`<i class="${n<=f.step?'on':''}"></i>`).join('')}</div>`;
+ const bk=`<button class="back" data-act="fback">${I.back}${f.step===1?'Batal':'Kembali'}</button>`;
+ if(f.step===1){return `${bk}${st}${header('Foto sampahmu','Langkah 1 dari 4')}
+  <div class="viewfinder">${f.scanning?'<div class="scanline"></div>':''}<span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
+  <div style="text-align:center;padding:20px">${f.scanning?'<b>Mengenali jenis sampah…</b>':`${I.cam}<div style="margin-top:6px">Arahkan kamera ke sampah</div>`}</div></div>
+  <p class="muted" style="margin:0">Di prototipe ini, pilih contoh foto:</p>
+  <div class="samples">${Object.entries(ITEMS).map(([k,it])=>`<button data-act="pick" data-k="${k}" ${f.scanning?'disabled':''}><span class="bin" style="width:34px;height:38px;border-radius:8px;background:${it.col};color:${it.txt}">${I[it.ic].replace(/width="30" height="30"/,'width="20" height="20"')}</span>${it.nm}</button>`).join('')}</div>`}
+ const it=ITEMS[f.k];
+ if(f.step===2){return `${bk}${st}${header('Hasil pengenalan','Langkah 2 dari 4')}
+  <section class="panel result pop"><span class="bin" style="background:${it.col};color:${it.txt}">${I[it.ic]}</span><div><div class="muted">Terdeteksi</div><b style="font-size:calc(20px*var(--scale))">${it.nm}</b><div class="muted">${it.sub}</div>
+  <span class="pill" style="background:color-mix(in srgb,${it.col} 22%,transparent);margin-top:6px">${it.jenis}</span></div></section>
+  <section class="panel"><h3>Masuk tempat sampah ${it.jenis==='Organik'?'hijau':it.jenis==='Kertas'?'biru':'kuning'}</h3><p class="muted" style="margin:0">Harga contoh di bank sampah: <b>${fmt(it.harga)} poin per kg</b>. Poin masuk setelah sampah ditimbang petugas.</p></section>
+  <button class="cta ink" data-act="next">Lanjut menyiapkan</button>`}
+ if(f.step===3){const all=f.checks.every(Boolean);return `${bk}${st}${header('Siapkan sampahnya','Langkah 3 dari 4 · centang semua')}
+  <div style="display:grid;gap:10px">${it.steps.map((s,i)=>`<button class="check" role="checkbox" aria-checked="${f.checks[i]}" data-act="tick" data-i="${i}"><span class="bx">${f.checks[i]?I.check:''}</span>${s}</button>`).join('')}</div>
+  <button class="cta ink" data-act="next" ${all?'':'disabled'}>${all?'Lanjut pilih cara serah':'Centang semua langkah dulu'}</button>`}
+ if(f.step===4){return `${bk}${st}${header('Cara menyerahkan','Langkah 4 dari 4')}
+  <div role="radiogroup" style="display:grid;gap:10px">
+   <button class="opt" role="radio" aria-checked="${f.m==='antar'}" data-act="method" data-m="antar"><span class="radio"></span><span><b>Antar ke Balai Desa</b><span class="muted">Buka Senin–Sabtu, 08.00–11.00</span></span></button>
+   <button class="opt" role="radio" aria-checked="${f.m==='jemput'}" data-act="method" data-m="jemput"><span class="radio"></span><span><b>Minta dijemput petugas</b><span class="muted">Jadwal RT 03: Kamis, 08.00</span></span></button>
+  </div>
+  <button class="cta" data-act="submit" ${f.m?'':'disabled'}>Buat kode setoran</button>`}
+ if(f.step===5){const p=it.harga*it.berat;return `${header('Status setoran','Kode #STR-0'+(312+S.hist.length))}
+  <section class="panel qrbox"><div class="qr">${qr(17+S.hist.length,120)}</div><div><b>Tunjukkan kode ini</b><p class="muted" style="margin:4px 0 0">ke petugas saat ${f.m==='antar'?'menyerahkan di balai desa':'sampah dijemput'}.</p></div></section>
+  <section class="panel tl">
+   <div class="ok"><span class="d">${I.check}</span>Sampah dipilah: ${it.nm}</div>
+   <div class="${f.done?'ok':'wait'}"><span class="d">${f.done?I.check:'2'}</span>${f.m==='antar'?'Diterima di Balai Desa':'Dijemput petugas'}</div>
+   <div class="${f.done?'ok':''}"><span class="d">${f.done?I.check:'3'}</span>Ditimbang dan dicek petugas</div></section>
+  ${f.done?`<section class="receipt pop"><div style="font-weight:800;margin-bottom:6px">Struk timbangan</div>
+    <div class="ln"><span>${it.nm}</span><span>${kg(it.berat)}</span></div>
+    <div class="ln"><span>Harga contoh</span><span>${fmt(it.harga)}/kg</span></div>
+    <div class="ln tot"><span>Poin masuk</span><span style="color:var(--leaf)">+${fmt(p)} = Rp${fmt(p)}</span></div>
+    <div class="ln"><span>Rutin memilah</span><span>${I.flame} ${S.streak} hari</span></div></section>
+    <button class="cta ink" data-act="finish">Kembali ke beranda</button>`
+  :`<button class="cta ink" data-act="verify">Simulasikan: petugas menimbang</button><p class="muted" style="margin:0;text-align:center">Poin belum masuk sampai sampah dicek petugas.</p>`}`}}
+
+/* peringkat */
+function peringkat(){const L=[['warga','Warga'],['rt','RT/RW'],['kec','Kecamatan'],['kab','Kabupaten'],['prov','Provinsi']];const R=RANK[S.lvl];const [a,b,c]=R.rows;
+ const v=x=>S.lvl==='warga'||S.lvl==='rt'?kg(x):x.toLocaleString('id-ID',{maximumFractionDigits:1})+' ton';
+ const pod=(r,cls,col,place)=>`<div class="pod ${cls}">${place===1?`<span class="crown">${I.crown}</span>`:''}<span class="av" style="--c:${col};background:${col}">${r[2]}</span><span class="who">${r[0]}</span><span class="val">${v(r[1])}</span>
+  <span class="block" style="--c:${col};height:${place===1?96:place===2?72:56}px">${place}</span></div>`;
+ return `${header('Peringkat bulan ini','Dihitung dari setoran yang sudah dicek')}
+ <div class="seg" role="group" aria-label="Jenjang peringkat">${L.map(([k,l])=>`<button data-act="lvl" data-k="${k}" aria-pressed="${S.lvl===k}">${l}</button>`).join('')}</div>
+ <section class="panel"><p class="muted" style="margin:0 0 6px;text-align:center">${R.ttl}</p>
+  <div class="podium">${pod(b,'','var(--silver)',2)}${pod(a,'first','var(--gold)',1)}${pod(c,'','var(--bronze)',3)}</div></section>
+ <section class="panel" style="padding-block:6px">${R.rows.slice(3).map((r,i)=>`<div class="rk"><span class="n">${i+4}</span><span>${r[0]}</span><span class="v">${v(r[1])}</span></div>`).join('')}</section>
+ ${S.role==='warga'?`<section class="panel" style="display:flex;gap:12px;align-items:center"><span class="pill" style="background:color-mix(in srgb,var(--sun) 25%,transparent)">${S.lvl==='warga'?'Kamu #2':'RT kamu #1'}</span><span class="muted">${S.lvl==='warga'?'Setor 7 kg lagi untuk menyalip posisi pertama.':'Hadiah juara: piagam dan tambahan kas RT.'}</span></section>`:''}
+ <p class="muted" style="margin:0;text-align:center">Nama dan angka adalah data contoh.</p>`}
+
+/* ---------- PETUGAS ---------- */
+const WARGA=[['Siti Aminah','RT 03/RW 02','0457',true,'SA'],['Hendra Saputra','RT 03/RW 02','0461',false,'HS'],['Mak Ijah','RT 05/RW 02','0512',true,'MI'],['Rina Lestari','RT 07/RW 04','0533',false,'RL']];
+const PRICE={an:2000,kr:1500,or:300};
+function catat(){const P=S.pt;
+ if(P.saved)return `${header('Setoran tersimpan','Mode petugas · Balai Desa Sukamaju')}
+  <section class="receipt pop"><div style="font-weight:800;margin-bottom:6px">Struk setoran</div>
+   <div class="ln"><span>Atas nama</span><span><b>${P.saved.who}</b></span></div>
+   <div class="ln"><span>No. kartu</span><span>${P.saved.no}</span></div>
+   <div class="ln"><span>Berat total</span><span>${kg(P.saved.w)}</span></div>
+   <div class="ln tot"><span>Poin tersimpan</span><span style="color:var(--leaf)">+${fmt(P.saved.p)} = Rp${fmt(P.saved.p)}</span></div></section>
+  <section class="panel"><p class="muted" style="margin:0">Poin tetap tercatat atas nama warga, walaupun ia tidak punya HP. Saldo bisa dicek dan ditukar di balai desa.</p></section>
+  <button class="cta ink" data-act="ptnew">Catat warga berikutnya</button>`;
+ if(!P.who){const q=P.query.toLowerCase();const list=WARGA.filter(w=>w[0].toLowerCase().includes(q));
+  return `${header('Catat setoran','Mode petugas · Balai Desa Sukamaju')}
+  <button class="cta ink" data-act="scancard">${I.scan}Pindai kartu atau kode QR</button>
+  <label class="search">${I.search}<input id="ptq" placeholder="Atau cari nama warga" value="${P.query}" aria-label="Cari nama warga"></label>
+  <div style="display:grid;gap:8px">${list.map((w,i)=>`<button class="person" data-act="pickw" data-n="${WARGA.indexOf(w)}"><span class="av" style="--c:var(--line);background:var(--ink-2);width:42px;height:42px;font-size:14px">${w[4]}</span><span><b>${w[0]}</b><div class="muted">${w[1]} · Kartu ${w[2]}</div></span>${w[3]?'<span class="tag" style="margin-left:auto">Tanpa HP</span>':''}</button>`).join('')||'<p class="muted">Nama tidak ditemukan. Cek ejaan atau pindai kartunya.</p>'}</div>`}
+ const w=WARGA[P.who-1];const tot=P.q.an*PRICE.an+P.q.kr*PRICE.kr+P.q.or*PRICE.or;const tw=P.q.an+P.q.kr+P.q.or;
+ const row=(k,n,col)=>`<div class="krow"><span class="dot" style="background:${col};width:14px;height:14px"></span><div><b>${n}</b><div class="muted">${fmt(PRICE[k])} poin/kg (contoh)</div></div><div class="stepper" style="margin-left:auto"><button data-act="q" data-k="${k}" data-d="-0.5" aria-label="Kurangi ${n}">−</button><output>${kg(P.q[k])}</output><button data-act="q" data-k="${k}" data-d="0.5" aria-label="Tambah ${n}">+</button></div></div>`;
+ return `<button class="back" data-act="ptback">${I.back}Ganti warga</button>
+ <section class="panel" style="display:flex;gap:12px;align-items:center"><span class="av" style="--c:var(--line);background:var(--ink-2);width:48px;height:48px">${w[4]}</span><div><b style="font-size:17px">${w[0]}</b><div class="muted">${w[1]} · Kartu ${w[2]}</div></div>${w[3]?'<span class="tag" style="margin-left:auto">Tanpa HP</span>':''}</section>
+ <section class="panel" style="padding-block:6px">${row('an','Plastik dan saset','var(--sun)')}${row('kr','Kardus dan kertas','var(--sky)')}${row('or','Organik','var(--leaf)')}</section>
+ <section class="panel" style="display:flex;justify-content:space-between;align-items:center"><span class="muted">${kg(tw)} · total poin</span><b style="font-size:22px;color:var(--leaf)">+${fmt(tot)}</b></section>
+ <button class="cta" data-act="ptsave" ${tw>0?'':'disabled'}>Simpan atas nama ${w[0].split(' ')[0]}</button>`}
+
+function jemput(){const J=[['Dimas Pratama','Jl. Gajah Mada No. 12','Plastik',true],['Rina Lestari','Gg. Sepakat 2','Organik',false],['Yusuf Maulana','Jl. Merdeka No. 4','Kardus',false]];
+ return `${header('Jemput hari ini','Kamis · RT 03/RW 02')}
+ ${J.map(j=>`<div class="mat"><span class="sw" style="background:var(--ink-2)">${I.truck}</span><div><b>${j[0]}</b><div class="muted">${j[1]} · ${j[2]}</div></div><div class="r"><span class="tag">${j[3]?'Menunggu':'Terjadwal'}</span></div></div>`).join('')}
+ <p class="muted">Rute disusun dari permintaan jemput warga. Data adalah contoh.</p>`}
+
+function kartu(){return `${header('Kartu PILAHIN','Untuk warga tanpa HP · ketuk untuk membalik')}
+ <div class="cardwrap"><div class="pcard ${S.flip?'flip':''}" data-act="flip" role="button" tabindex="0" aria-label="Balik kartu">
+  <div class="face"><div style="display:flex;justify-content:space-between;align-items:flex-start"><span class="brand">PILAHIN</span><span class="chip"></span></div>
+   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:10px"><div><div class="meta">Kartu Warga</div><div class="nm">Siti Aminah</div><div class="meta">RT 03/RW 02 · Desa Sukamaju</div><div style="font-weight:800;letter-spacing:.12em;margin-top:6px">0457 2026 0302</div></div><div class="qrs">${qr(99,90)}</div></div><span class="stripe"></span></div>
+  <div class="face back"><b style="font-size:16px">Cara pakai</b><ol style="margin:0;padding-left:18px;font-size:13px;line-height:1.55"><li>Bawa sampah terpilah dan kartu ke balai desa</li><li>Petugas memindai kartu dan menimbang</li><li>Poin tercatat atas nama pemilik kartu</li><li>Cek dan tukar poin di balai desa</li></ol><div class="meta">1 poin = Rp1 · Kartu hilang? Lapor ke petugas balai desa</div><span class="stripe"></span></div>
+ </div></div>
+ <section class="panel" style="display:flex;justify-content:space-between;align-items:center"><div><div class="muted">Saldo Siti Aminah</div><b style="font-size:22px">${fmt(15600+(S.pt.savedTotal||0))} poin</b></div><span class="tag">= Rp${fmt(15600+(S.pt.savedTotal||0))}</span></section>
+ <p class="muted">Garis tiga warna di bawah kartu mengikuti warna tempat sampah: hijau organik, kuning anorganik, biru kertas.</p>`}
+
+/* ---------- MITRA ---------- */
+const MAT=[['Botol plastik PET',42,'kg','var(--sun)','#2a2100','bottle',1500,['Pengrajin','Pengepul']],['Kemasan saset',18,'kg','var(--sun)','#2a2100','sachet',400,['Pengrajin']],['Ban bekas',9,'buah','var(--sun)','#2a2100','tire',5000,['Pengrajin']],['Sisa sayur dan buah',120,'kg','var(--leaf)','#fff','leaf',200,['Pembuat kompos','Peternak','Pembudidaya maggot']],['Kardus dan kertas',35,'kg','var(--sky)','#fff','paper',1000,['Pengrajin','Pengepul']]];
+function bahan(){const T=['Pengrajin','Pembuat kompos','Peternak','Pembudidaya maggot','Pengepul'];const list=MAT.filter(m=>m[7].includes(S.mitra.tipe));
+ return `${header('Bahan siap diambil','Balai Desa Sukamaju · stok hari ini')}
+ <div class="seg" role="group" aria-label="Jenis mitra">${T.map(t=>`<button data-act="mt" data-t="${t}" aria-pressed="${S.mitra.tipe===t}">${t}</button>`).join('')}</div>
+ ${list.map(m=>`<div class="mat"><span class="sw" style="background:${m[3]};color:${m[4]}">${I[m[5]]}</span><div><b>${m[0]}</b><div class="muted">${m[1]} ${m[2]} · Rp${fmt(m[6])}/${m[2]==='buah'?'buah':'kg'}</div></div><div class="r"><button class="smallbtn" data-act="order" data-n="${MAT.indexOf(m)}">Pesan</button></div></div>`).join('')}
+ <section class="panel"><p class="muted" style="margin:0">Hasil penjualan bahan ke mitra menjadi sumber dana poin warga dan upah petugas. Harga adalah contoh.</p></section>`}
+function pesanan(){const o=S.mitra.order;return `${header('Pesanan saya','Ambil di titik serah')}
+ ${o?`<section class="receipt pop"><div style="font-weight:800;margin-bottom:6px">Pesanan #PSN-118</div><div class="ln"><span>${o.n}</span><span>${o.q} ${o.u}</span></div><div class="ln"><span>Harga</span><span>Rp${fmt(o.h)}/${o.u}</span></div><div class="ln tot"><span>Total bayar</span><span>Rp${fmt(o.q*o.h)}</span></div><div class="ln"><span>Ambil</span><span>Sabtu, 09.00</span></div></section>`
+ :'<section class="panel"><h3>Belum ada pesanan</h3><p class="muted" style="margin:0">Buka menu Bahan untuk memesan bahan pilahan dari balai desa.</p></section>'}`}
+function akun(){return `${header('Akun mitra','Contoh profil')}
+ <section class="panel"><b>Kriya Sungai Pawan</b><div class="muted">Pengrajin tas dan dompet dari kemasan saset · Delta Pawan</div></section>
+ <section class="panel"><h3>Bahan yang sudah diolah</h3><div class="hist"><span class="dot" style="background:var(--sun)"></span><div><b>Kemasan saset</b><div class="muted">Bulan ini</div></div><span class="amt">64 kg</span></div><div class="hist"><span class="dot" style="background:var(--sun)"></span><div><b>Ban bekas</b><div class="muted">Bulan ini</div></div><span class="amt">12 buah</span></div></section>`}
+
+function render(){nav();let h='';
+ if(S.role==='warga')h=S.flow?flow():({home,riwayat,peringkat,tukar}[S.tab]||home)();
+ else if(S.role==='petugas')h=({catat,jemput,kartu,peringkat}[S.tab]||catat)();
+ else h=({bahan,pesanan,peringkat,akun}[S.tab]||bahan)();
+ view.innerHTML=h;screen.style.setProperty('--scale',S.scale);
+ const q=document.getElementById('ptq');if(q){q.addEventListener('input',e=>{S.pt.query=e.target.value;const pos=e.target.selectionStart;render();const n=document.getElementById('ptq');n.focus();n.setSelectionRange(pos,pos)})}
+ scen()}
+
+function go(role,tab,extra){S.role=role;S.tab=tab;S.flow=null;if(extra)extra();render();view.scrollTop=0}
+
+view.addEventListener('click',e=>{const b=e.target.closest('[data-act],[data-tab]');if(!b||b.disabled)return;
+ if(b.dataset.tab){S.tab=b.dataset.tab;S.flow=null;render();view.scrollTop=0;return}
+ const a=b.dataset.act,f=S.flow;
+ switch(a){
+  case 'scale':S.scale=S.scale>1?1:1.15;break;
+  case 'start':S.flow={step:1};break;
+  case 'jadwal':toast('Jadwal jemput RT 03: setiap Kamis, 08.00');return;
+  case 'fback':if(f.step===1)S.flow=null;else{f.step--;}break;
+  case 'pick':f.scanning=true;render();setTimeout(()=>{f.scanning=false;f.k=b.dataset.k;f.step=2;f.checks=ITEMS[f.k].steps.map(()=>false);render()},1100);return;
+  case 'next':f.step++;break;
+  case 'tick':f.checks[+b.dataset.i]=!f.checks[+b.dataset.i];break;
+  case 'method':f.m=b.dataset.m;break;
+  case 'submit':f.step=5;break;
+  case 'verify':{const it=ITEMS[f.k];const p=it.harga*it.berat;f.done=true;S.poin+=p;S.streak++;S.hist.unshift({t:it.nm,w:it.berat,p,d:'Hari ini',c:it.col});break}
+  case 'finish':S.flow=null;S.tab='home';break;
+  case 'lvl':S.lvl=b.dataset.k;break;
+  case 'redeem':{const P=[10000,20000,14000,5000][+b.dataset.i];if(S.poin>=P){S.poin-=P;render();toast('Penukaran berhasil. Saldo sekarang '+fmt(S.poin)+' poin');}return}
+  case 'scancard':S.pt.who=1;break;
+  case 'pickw':S.pt.who=+b.dataset.n+1;break;
+  case 'ptback':S.pt.who=null;break;
+  case 'q':{const k=b.dataset.k;S.pt.q[k]=Math.max(0,Math.round((S.pt.q[k]+ +b.dataset.d)*10)/10);break}
+  case 'ptsave':{const w=WARGA[S.pt.who-1];const p=S.pt.q.an*PRICE.an+S.pt.q.kr*PRICE.kr+S.pt.q.or*PRICE.or;S.pt.saved={who:w[0],no:w[2],w:S.pt.q.an+S.pt.q.kr+S.pt.q.or,p};if(S.pt.who===1)S.pt.savedTotal=(S.pt.savedTotal||0)+p;break}
+  case 'ptnew':S.pt={who:null,q:{an:1.5,kr:0,or:2},saved:null,query:'',savedTotal:S.pt.savedTotal};break;
+  case 'flip':S.flip=!S.flip;break;
+  case 'mt':S.mitra.tipe=b.dataset.t;break;
+  case 'order':{const m=MAT[+b.dataset.n];S.mitra.order={n:m[0],q:Math.min(m[1],m[2]==='buah'?4:20),u:m[2],h:m[6]};S.tab='pesanan';render();toast('Pesanan dibuat. Ambil Sabtu, 09.00 di balai desa');return}
+ }
+ render()});
+view.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.dataset.act==='flip'){e.preventDefault();S.flip=!S.flip;render()}});
+tabbar.addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;S.tab=b.dataset.tab;S.flow=null;render();view.scrollTop=0});
+
+const SC=[
+ ['Pilah sampah sebagai warga','Foto, siapkan, serahkan, lalu poin masuk','cam',()=>go('warga','home',()=>{S.flow={step:1}})],
+ ['Beranda warga','Saldo poin, hari rutin, target RT','home',()=>go('warga','home')],
+ ['Catat setoran warga tanpa HP','Mode petugas di balai desa','scan',()=>go('petugas','catat',()=>{S.pt={who:null,q:{an:1.5,kr:0,or:2},saved:null,query:'',savedTotal:S.pt.savedTotal}})],
+ ['Kartu PILAHIN','Kartu warga berkode QR','card',()=>go('petugas','kartu')],
+ ['Peringkat dan podium','Dari warga sampai provinsi','trophy',()=>go(S.role,'peringkat')],
+ ['Pesan bahan sebagai mitra','Pengrajin, kompos, peternak, maggot','hand',()=>go('mitra','bahan')]
+];
+function active(i){const [, , ,]=SC[i];
+ if(i===0)return S.role==='warga'&&!!S.flow; if(i===1)return S.role==='warga'&&!S.flow&&S.tab==='home';
+ if(i===2)return S.role==='petugas'&&S.tab==='catat'; if(i===3)return S.tab==='kartu'; if(i===4)return S.tab==='peringkat'; return S.role==='mitra'&&S.tab!=='peringkat'}
+function scen(){document.getElementById('scen').innerHTML=SC.map(([t,s,i],k)=>`<li><button data-sc="${k}" aria-pressed="${active(k)}"><span class="ic">${I[i]}</span><span><b>${t}</b><small>${s}</small></span></button></li>`).join('')}
+document.getElementById('scen').addEventListener('click',e=>{const b=e.target.closest('[data-sc]');if(b){SC[+b.dataset.sc][3]();if(window.innerWidth<=900)document.querySelector('.phone').scrollIntoView({behavior:'smooth'})}});
+render();
+})();
+</script>
+</body></html>
